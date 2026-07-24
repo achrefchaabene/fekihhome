@@ -369,15 +369,19 @@ p {
 }
 
 .filtersBar {
+  background: #ffffff;
+  border: 1px solid rgba(31, 27, 23, 0.1);
+  box-shadow: 0 18px 42px rgba(23, 20, 18, 0.06);
   display: grid;
-  gap: 12px;
-  grid-template-columns: minmax(180px, 0.8fr) minmax(120px, 0.35fr) minmax(120px, 0.35fr);
-  padding: 0 clamp(18px, 4vw, 56px) 18px;
+  gap: 14px;
+  grid-template-columns: minmax(220px, 1fr) minmax(130px, 0.34fr) minmax(130px, 0.34fr);
+  margin: 0 clamp(18px, 4vw, 56px) 18px;
+  padding: 14px;
 }
 
 .filtersBar input,
 .filtersBar select {
-  background: rgba(255, 255, 255, 0.82);
+  background: #f7f3eb;
   border: 1px solid rgba(31, 27, 23, 0.12);
   border-radius: 8px;
   min-height: 46px;
@@ -441,8 +445,9 @@ p {
 
 .productGrid {
   display: grid;
-  gap: 28px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 30px;
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
   padding: 0 clamp(18px, 4vw, 56px) 68px;
 }
 
@@ -476,27 +481,47 @@ p {
   border: 1px solid rgba(31, 27, 23, 0.1);
   border-radius: 0;
   box-shadow: 0 18px 44px rgba(23, 20, 18, 0.08);
+  display: grid;
+  grid-template-rows: auto 1fr;
   overflow: hidden;
+  position: relative;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.productCard:hover {
+  border-color: rgba(196, 157, 91, 0.55);
+  box-shadow: 0 28px 68px rgba(23, 20, 18, 0.14);
+  transform: translateY(-4px);
 }
 
 .productImageButton {
   background: #ece6db;
   border: 0;
   display: block;
+  min-height: 0;
   overflow: hidden;
   padding: 0;
   position: relative;
   width: 100%;
 }
 
+.productImageButton::after {
+  background: linear-gradient(180deg, transparent 48%, rgba(0, 0, 0, 0.24));
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
 .productImageButton img {
-  aspect-ratio: 0.92 / 1;
+  aspect-ratio: 0.9 / 1;
   display: block;
-  transition: transform 180ms ease;
+  transition: transform 220ms ease, filter 220ms ease;
 }
 
 .productImageButton:hover img {
-  transform: scale(1.035);
+  filter: saturate(1.04) contrast(1.03);
+  transform: scale(1.045);
 }
 
 .promoBadge {
@@ -512,12 +537,14 @@ p {
   padding: 7px 10px;
   position: absolute;
   top: 12px;
+  z-index: 1;
 }
 
 .productCard > div {
   display: grid;
-  gap: 10px;
-  padding: 20px;
+  gap: 12px;
+  grid-template-rows: auto auto minmax(54px, auto) auto auto 1fr;
+  padding: 22px;
 }
 
 .category {
@@ -532,11 +559,35 @@ p {
   border: 0;
   color: #241f1b;
   display: block;
-  font-size: 1.2rem;
+  font-size: 1.22rem;
   font-weight: 900;
   margin: 8px 0;
   padding: 0;
   text-align: left;
+}
+
+.productCard p {
+  display: -webkit-box;
+  min-height: 52px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.productMeta {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.productMeta span {
+  background: #f7f3eb;
+  border: 1px solid rgba(31, 27, 23, 0.08);
+  color: #5e554d;
+  font-size: 0.78rem;
+  font-weight: 850;
+  padding: 6px 9px;
 }
 
 .colorSwatches,
@@ -544,7 +595,7 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 4px;
 }
 
 .colorSwatches button {
@@ -565,8 +616,9 @@ p {
   display: flex;
   gap: 12px;
   justify-content: space-between;
+  align-self: end;
   border-top: 1px solid rgba(31, 27, 23, 0.08);
-  margin-top: 8px;
+  margin-top: 4px;
   padding-top: 16px;
 }
 
@@ -584,11 +636,17 @@ p {
 
 .priceStack strong {
   color: #191715;
+  font-size: 1.25rem;
 }
 
 .productFooter button {
   background: #241f1b;
   color: white;
+}
+
+.productFooter button:disabled {
+  background: #c9c0b4;
+  color: #6f665e;
 }
 
 .productActions {
@@ -602,6 +660,24 @@ p {
   color: #241f1b;
   min-width: 44px;
   padding: 12px;
+}
+
+.emptyProducts {
+  align-items: center;
+  background: #ffffff;
+  border: 1px dashed rgba(31, 27, 23, 0.18);
+  color: #5f574f;
+  display: grid;
+  grid-column: 1 / -1;
+  justify-items: center;
+  min-height: 220px;
+  padding: 34px;
+  text-align: center;
+}
+
+.emptyProducts h3,
+.emptyProducts p {
+  margin-bottom: 0;
 }
 
 .authPanel {
@@ -1116,6 +1192,12 @@ textarea:disabled {
 
   .productForm textarea {
     grid-column: auto;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .productGrid {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
   }
 }
 

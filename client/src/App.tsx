@@ -557,6 +557,10 @@ function App() {
                   <span className="category">{product.category}</span>
                   <button className="productTitle" onClick={() => setDetailProduct(product)}>{product.name}</button>
                   <p>{product.description}</p>
+                  <div className="productMeta">
+                    <span>{product.stock > 0 ? `${product.stock} en stock` : "Rupture"}</span>
+                    {selectedColor(product) && <span>{selectedColor(product)?.name}</span>}
+                  </div>
                   {(product.colors?.length || 0) > 0 && (
                     <div className="colorSwatches" aria-label={`Couleurs ${product.name}`}>
                       {product.colors?.map((color, index) => (
@@ -580,12 +584,19 @@ function App() {
                       <button className="quietButton" onClick={() => setDetailProduct(product)}>
                         <Eye size={16} />
                       </button>
-                      <button onClick={() => buyNow(product)}>Acheter</button>
+                      <button onClick={() => buyNow(product)} disabled={product.stock <= 0}>Acheter</button>
                     </div>
                   </div>
                 </div>
               </article>
             ))}
+            {filteredProducts.length === 0 && (
+              <article className="emptyProducts">
+                <Search size={28} />
+                <h3>Aucun produit trouvé</h3>
+                <p>Essaie une autre catégorie ou ajuste le filtre de prix.</p>
+              </article>
+            )}
           </section>
 
           <section className="cartPanel" id="cart">
