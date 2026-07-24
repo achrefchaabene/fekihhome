@@ -1,6 +1,8 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 
+const DELIVERY_FEE = 8;
+
 function buildPeriodKey(date, period) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -58,9 +60,10 @@ export async function createOrder(request, response, next) {
     const order = await Order.create({
       customer,
       items: orderItems,
-      totalAmount,
+      totalAmount: totalAmount + DELIVERY_FEE,
+      deliveryFee: DELIVERY_FEE,
       totalCost,
-      profit: totalAmount - totalCost
+      profit: totalAmount - totalCost + DELIVERY_FEE
     });
 
     response.status(201).json(order);

@@ -1,6 +1,6 @@
 :root {
-  color: #241f1b;
-  background: #fffaf1;
+  color: #191715;
+  background: #f8f6f1;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -38,8 +38,8 @@ main {
 .topbar {
   align-items: center;
   backdrop-filter: blur(16px);
-  background: rgba(255, 250, 241, 0.9);
-  border-bottom: 1px solid #eadfcf;
+  background: rgba(248, 246, 241, 0.92);
+  border-bottom: 1px solid #dfd9cd;
   display: grid;
   gap: 16px;
   grid-template-columns: 1fr auto 1fr;
@@ -70,7 +70,7 @@ main {
 
 .brand img {
   background: #ffffff;
-  border: 1px solid #e4d4c0;
+  border: 1px solid #d8d0c2;
   border-radius: 50%;
   height: 46px;
   object-fit: cover;
@@ -80,8 +80,8 @@ main {
 
 .nav,
 .toggle {
-  background: #f2e6d8;
-  border: 1px solid #e4d4c0;
+  background: #ebe6dc;
+  border: 1px solid #d8d0c2;
   border-radius: 8px;
   display: flex;
   padding: 4px;
@@ -106,8 +106,8 @@ main {
 
 .nav .active,
 .toggle .active {
-  background: #fffaf1;
-  color: #241f1b;
+  background: #ffffff;
+  color: #191715;
   font-weight: 700;
 }
 
@@ -128,14 +128,12 @@ main {
 }
 
 .hero {
-  background:
-    linear-gradient(120deg, rgba(31, 111, 91, 0.08), transparent 42%),
-    linear-gradient(180deg, #fffaf1 0%, #f6eadb 100%);
+  background: #f8f6f1;
   display: grid;
-  gap: clamp(24px, 4vw, 56px);
-  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
-  min-height: calc(100vh - 80px);
-  padding: clamp(44px, 7vw, 88px) clamp(18px, 4vw, 56px) 42px;
+  gap: clamp(28px, 5vw, 72px);
+  grid-template-columns: minmax(0, 0.92fr) minmax(320px, 0.78fr);
+  min-height: auto;
+  padding: clamp(42px, 6vw, 76px) clamp(18px, 4vw, 56px);
 }
 
 .heroText {
@@ -144,7 +142,7 @@ main {
 }
 
 .eyebrow {
-  color: #88611e;
+  color: #806242;
   font-size: 0.84rem;
   font-weight: 800;
   gap: 8px;
@@ -160,10 +158,10 @@ p {
 }
 
 h1 {
-  font-size: clamp(2.65rem, 6.8vw, 5.75rem);
+  font-size: clamp(4rem, 9vw, 8rem);
   letter-spacing: 0;
-  line-height: 0.98;
-  margin-bottom: 22px;
+  line-height: 0.86;
+  margin-bottom: 26px;
   max-width: 900px;
 }
 
@@ -183,8 +181,9 @@ p {
 }
 
 .heroText p {
-  font-size: 1.12rem;
-  max-width: 620px;
+  color: #4d4740;
+  font-size: 1.08rem;
+  max-width: 560px;
 }
 
 .heroStats {
@@ -195,8 +194,8 @@ p {
 }
 
 .heroStats span {
-  background: rgba(255, 255, 255, 0.76);
-  border: 1px solid #eadfcf;
+  background: #ffffff;
+  border: 1px solid #ded7ca;
   border-radius: 999px;
   color: #4e4439;
   font-size: 0.88rem;
@@ -225,22 +224,23 @@ p {
 }
 
 .primary {
-  background: #1f6f5b;
+  background: #191715;
   color: white;
 }
 
 .secondary {
-  background: #e8d2a0;
-  color: #2f261c;
+  background: #d9b66f;
+  color: #191715;
 }
 
 .heroMedia {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1.12;
   align-self: center;
-  border: 1px solid #eadfcf;
+  background: #ffffff;
+  border: 1px solid #ded7ca;
   border-radius: 8px;
-  box-shadow: 0 28px 70px rgba(52, 39, 24, 0.18);
-  max-height: 720px;
+  box-shadow: 0 22px 56px rgba(30, 27, 23, 0.14);
+  max-height: 620px;
   overflow: hidden;
 }
 
@@ -263,7 +263,7 @@ p {
 .toolbar,
 .authPanel,
 .adminPanel {
-  padding: 34px clamp(18px, 4vw, 56px);
+  padding: 42px clamp(18px, 4vw, 56px) 28px;
 }
 
 .toolbar {
@@ -288,6 +288,29 @@ p {
   min-height: 46px;
   padding: 12px;
   width: 100%;
+}
+
+.categoryStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 clamp(18px, 4vw, 56px) 28px;
+}
+
+.categoryStrip button {
+  background: #ffffff;
+  border: 1px solid #ded7ca;
+  border-radius: 999px;
+  color: #4d4740;
+  font-weight: 800;
+  min-height: 40px;
+  padding: 9px 14px;
+}
+
+.categoryStrip button.active {
+  background: #191715;
+  border-color: #191715;
+  color: #ffffff;
 }
 
 .search {
@@ -323,14 +346,14 @@ p {
 
 .productGrid {
   display: grid;
-  gap: 18px;
+  gap: 22px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   padding: 0 clamp(18px, 4vw, 56px) 44px;
 }
 
 .cartButton {
   align-items: center;
-  background: #1f6f5b;
+  background: #191715;
   border-radius: 999px;
   color: #ffffff;
   display: inline-flex;
@@ -344,7 +367,7 @@ p {
 .cartButton span {
   background: #ffffff;
   border-radius: 999px;
-  color: #1f6f5b;
+  color: #191715;
   display: grid;
   font-size: 0.76rem;
   height: 20px;
@@ -401,7 +424,7 @@ p {
 }
 
 .category {
-  color: #1f6f5b;
+  color: #806242;
   font-size: 0.78rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -437,7 +460,7 @@ p {
 }
 
 .colorSwatches button.active {
-  box-shadow: 0 0 0 3px #1f6f5b;
+  box-shadow: 0 0 0 3px #191715;
 }
 
 .productFooter {
@@ -461,7 +484,7 @@ p {
 }
 
 .priceStack strong {
-  color: #1f6f5b;
+  color: #191715;
 }
 
 .productFooter button {
@@ -491,7 +514,7 @@ p {
 }
 
 .cartPanel {
-  background: #f4eadc;
+  background: #ebe6dc;
   display: grid;
   gap: 24px;
   grid-template-columns: minmax(0, 1fr) minmax(300px, 0.55fr);
@@ -518,6 +541,30 @@ p {
   gap: 12px;
   grid-template-columns: 72px 1fr 82px auto;
   padding: 10px;
+}
+
+.cartSummary {
+  background: #ffffff;
+  border: 1px solid #ded7ca;
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 14px;
+}
+
+.cartSummary span {
+  align-items: center;
+  color: #5f574f;
+  display: flex;
+  justify-content: space-between;
+}
+
+.cartSummary span:last-child {
+  border-top: 1px solid #ebe6dc;
+  color: #191715;
+  font-size: 1.08rem;
+  padding-top: 8px;
 }
 
 .cartList img {

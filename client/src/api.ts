@@ -51,6 +51,7 @@ export type Order = {
   }>;
   status: OrderStatus;
   totalAmount: number;
+  deliveryFee?: number;
   totalCost: number;
   profit: number;
   createdAt: string;

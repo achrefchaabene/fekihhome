@@ -98,6 +98,8 @@ const fallbackStats: OrderStats = {
   stats: []
 };
 
+const DELIVERY_FEE = 8;
+
 function money(value: number) {
   return `${value.toFixed(2)} TND`;
 }
@@ -178,6 +180,7 @@ function App() {
   }, [categories, products]);
 
   const cartTotal = cart.reduce((sum, item) => sum + productPrice(item.product) * item.quantity, 0);
+  const orderTotal = cart.length > 0 ? cartTotal + DELIVERY_FEE : 0;
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   function logout() {
@@ -433,12 +436,12 @@ function App() {
         <div className="heroText">
           <span className="eyebrow">
             <Sparkles size={16} />
-            Boutique artisanale et productive
+            Boutique officielle
           </span>
-          <h1>FK Home, creations elegantes pour un quotidien plus doux.</h1>
+          <h1>FK Home</h1>
           <p>
-            Decouvre une selection artisanale de sacs, accessoires et pieces maison,
-            classee avec soin pour choisir vite, acheter simplement et commander sans compte.
+            Boutique de pieces artisanales selectionnees avec soin: des sacs, accessoires
+            et objets maison presentes clairement pour commander rapidement, sans creation de compte.
           </p>
           <div className="heroStats" aria-label="Avantages boutique">
             <span>Fait main</span>
@@ -501,6 +504,21 @@ function App() {
             />
           </section>
 
+          <section className="categoryStrip" aria-label="Categories principales">
+            <button className={categoryFilter === "all" ? "active" : ""} onClick={() => setCategoryFilter("all")}>
+              Tous
+            </button>
+            {categoryOptions.map((category) => (
+              <button
+                key={`strip-${category}`}
+                className={categoryFilter === category ? "active" : ""}
+                onClick={() => setCategoryFilter(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </section>
+
           <section className="productGrid">
             {filteredProducts.map((product) => (
               <article className="productCard" key={product._id}>
@@ -551,7 +569,14 @@ function App() {
           <section className="cartPanel" id="cart">
             <div>
               <h2>Panier</h2>
-              <p>{cartCount} article(s), total {money(cartTotal)}</p>
+              <p>{cartCount} article(s), sous-total {money(cartTotal)}</p>
+              {cart.length > 0 && (
+                <div className="cartSummary">
+                  <span>Sous-total <strong>{money(cartTotal)}</strong></span>
+                  <span>Livraison <strong>{money(DELIVERY_FEE)}</strong></span>
+                  <span>Total <strong>{money(orderTotal)}</strong></span>
+                </div>
+              )}
               <div className="cartList">
                 {cart.length === 0 && <p>Ton panier est vide.</p>}
                 {cart.map((item) => (
@@ -585,7 +610,7 @@ function App() {
               <form className="checkoutForm" onSubmit={handleOrder}>
                 <div>
                   <h3>Informations de livraison</h3>
-                  <p>Remplis tes coordonnees pour envoyer la commande a l'admin.</p>
+                  <p>Livraison fixe {money(DELIVERY_FEE)}. Total commande {money(orderTotal)}.</p>
                 </div>
                 <input name="firstName" placeholder="Prenom" required />
                 <input name="lastName" placeholder="Nom" required />
@@ -668,11 +693,13 @@ function App() {
                     {order.items.map((item) => (
                       <li key={`${order._id}-${item.product}`}>
                         {item.quantity} x {item.name} - {money(item.lineTotal)}
+                        {item.colorName ? ` - ${item.colorName}` : ""}
                       </li>
                     ))}
                   </ul>
                   <div className="orderTotals">
                     <strong>Total {money(order.totalAmount)}</strong>
+                    <span>Livraison {money(order.deliveryFee ?? DELIVERY_FEE)}</span>
                     <span>Benefice {money(order.profit)}</span>
                   </div>
                   <div className="rowActions">
