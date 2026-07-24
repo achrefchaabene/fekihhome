@@ -392,7 +392,7 @@ function App() {
     <main>
       <header className="topbar">
         <a className="brand" href="#home" aria-label="Accueil Fekih Home">
-          <img src="/logo-fkh-home.jpg" alt="" />
+          <img src="/logo-fkh-home.png" alt="" />
           <span>Fekih Home</span>
         </a>
 
