@@ -1,6 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
-  Hammer,
   LayoutDashboard,
   LogOut,
   PackagePlus,
@@ -136,7 +135,7 @@ function App() {
     <main>
       <header className="topbar">
         <a className="brand" href="#home" aria-label="Accueil Fekih Home">
-          <Hammer size={24} />
+          <img src="/logo-fkh-home.jpg" alt="" />
           <span>Fekih Home</span>
         </a>
 

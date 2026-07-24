@@ -66,6 +66,16 @@ main {
   gap: 10px;
 }
 
+.brand img {
+  background: #ffffff;
+  border: 1px solid #e4d4c0;
+  border-radius: 50%;
+  height: 46px;
+  object-fit: cover;
+  padding: 3px;
+  width: 46px;
+}
+
 .nav,
 .toggle {
   background: #f2e6d8;
