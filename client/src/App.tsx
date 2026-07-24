@@ -89,7 +89,9 @@ function App() {
   const [statsPeriod, setStatsPeriod] = useState<"month" | "year">("month");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [user, setUser] = useState<User | null>(() => readUser());
-  const [mode, setMode] = useState<"visitor" | "admin">("visitor");
+  const [mode, setMode] = useState<"visitor" | "admin">(() =>
+    readUser()?.role === "admin" ? "admin" : "visitor"
+  );
   const [adminTab, setAdminTab] = useState<"orders" | "products" | "categories" | "stats">("orders");
   const [query, setQuery] = useState("");
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
@@ -180,7 +182,13 @@ function App() {
           : await api.register(name, email, password);
       saveSession(session.token, session.user);
       setUser(session.user);
-      setMessage(`Bienvenue ${session.user.name}.`);
+      setMode(session.user.role === "admin" ? "admin" : "visitor");
+      setAdminTab("orders");
+      setMessage(
+        session.user.role === "admin"
+          ? `Bienvenue ${session.user.name}, espace admin ouvert.`
+          : `Bienvenue ${session.user.name}, espace visiteur ouvert.`
+      );
       event.currentTarget.reset();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Connexion impossible.");
@@ -305,17 +313,21 @@ function App() {
             <ShoppingBag size={18} />
             Boutique
           </button>
-          <button className={mode === "admin" ? "active" : ""} onClick={() => setMode("admin")}>
-            <LayoutDashboard size={18} />
-            Admin
-          </button>
+          {isAdmin && (
+            <button className={mode === "admin" ? "active" : ""} onClick={() => setMode("admin")}>
+              <LayoutDashboard size={18} />
+              Admin
+            </button>
+          )}
         </nav>
 
         <div className="account">
-          <span className="cartBadge">
-            <ShoppingBag size={16} />
-            {cartCount}
-          </span>
+          {mode === "visitor" && (
+            <span className="cartBadge">
+              <ShoppingBag size={16} />
+              {cartCount}
+            </span>
+          )}
           {user ? (
             <>
               <span>
@@ -427,8 +439,11 @@ function App() {
 
           <section className="authPanel" id="account">
             <div>
-              <h2>Compte visiteur</h2>
-              <p>Connecte-toi pour preparer les prochaines commandes et garder ton espace client.</p>
+              <h2>Compte</h2>
+              <p>
+                Connecte-toi avec un compte visiteur pour commander, ou avec un compte admin pour
+                gerer produits, categories, commandes et statistiques.
+              </p>
             </div>
             <form onSubmit={handleAuth}>
               <div className="toggle">
