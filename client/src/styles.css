@@ -195,10 +195,14 @@ p {
 
 .heroText p,
 .heroCopy {
-  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
   font-size: clamp(1.05rem, 1.8vw, 1.34rem);
+  font-weight: 700;
   line-height: 1.9;
   max-width: 650px;
+  padding: 18px 20px;
 }
 
 .heroStats {
