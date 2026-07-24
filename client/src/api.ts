@@ -98,10 +98,16 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers
+    });
+  } catch {
+    throw new Error("API inaccessible. Verifie VITE_API_URL sur Vercel et l'etat du backend Render.");
+  }
 
   const data = await response.json().catch(() => null);
 
