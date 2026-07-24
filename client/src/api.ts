@@ -5,11 +5,57 @@ export type Product = {
   name: string;
   description: string;
   category: string;
+  purchasePrice: number;
+  sellingPrice: number;
   price: number;
   stock: number;
   imageUrl: string;
   cloudinaryId?: string;
   featured: boolean;
+};
+
+export type Category = {
+  _id: string;
+  name: string;
+  description: string;
+};
+
+export type OrderStatus = "pending" | "accepted" | "refused";
+
+export type Order = {
+  _id: string;
+  customer: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    address: string;
+  };
+  items: Array<{
+    product: string;
+    name: string;
+    quantity: number;
+    purchasePrice: number;
+    sellingPrice: number;
+    lineTotal: number;
+    lineProfit: number;
+  }>;
+  status: OrderStatus;
+  totalAmount: number;
+  totalCost: number;
+  profit: number;
+  createdAt: string;
+};
+
+export type OrderStats = {
+  period: "month" | "year";
+  totals: {
+    orders: number;
+    revenue: number;
+    cost: number;
+    profit: number;
+    items: number;
+  };
+  stats: Array<OrderStats["totals"] & { period: string }>;
 };
 
 export type User = {
@@ -68,6 +114,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export const api = {
   listProducts: () => request<Product[]>("/products"),
+  listCategories: () => request<Category[]>("/categories"),
+  listOrders: () => request<Order[]>("/orders"),
+  listOrderStats: (period: "month" | "year") => request<OrderStats>(`/orders/stats?period=${period}`),
   login: (email: string, password: string) =>
     request<{ token: string; user: User }>("/auth/login", {
       method: "POST",
@@ -83,8 +132,44 @@ export const api = {
       method: "POST",
       body: form
     }),
+  updateProduct: (id: string, form: FormData) =>
+    request<Product>(`/products/${id}`, {
+      method: "PUT",
+      body: form
+    }),
   deleteProduct: (id: string) =>
     request<{ message: string }>(`/products/${id}`, {
+      method: "DELETE"
+    }),
+  createCategory: (name: string, description: string) =>
+    request<Category>("/categories", {
+      method: "POST",
+      body: JSON.stringify({ name, description })
+    }),
+  updateCategory: (id: string, name: string, description: string) =>
+    request<Category>(`/categories/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name, description })
+    }),
+  deleteCategory: (id: string) =>
+    request<{ message: string }>(`/categories/${id}`, {
+      method: "DELETE"
+    }),
+  createOrder: (payload: {
+    customer: { firstName: string; lastName: string; phone: string; address: string };
+    items: Array<{ productId: string; quantity: number }>;
+  }) =>
+    request<Order>("/orders", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  updateOrderStatus: (id: string, status: OrderStatus) =>
+    request<Order>(`/orders/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status })
+    }),
+  deleteOrder: (id: string) =>
+    request<{ message: string }>(`/orders/${id}`, {
       method: "DELETE"
     })
 };

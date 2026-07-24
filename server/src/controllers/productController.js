@@ -39,7 +39,8 @@ export async function createProduct(request, response, next) {
       name: request.body.name,
       description: request.body.description,
       category: request.body.category,
-      price: Number(request.body.price),
+      purchasePrice: Number(request.body.purchasePrice || 0),
+      sellingPrice: Number(request.body.sellingPrice || request.body.price),
       stock: Number(request.body.stock),
       featured: request.body.featured === "on" || request.body.featured === "true",
       imageUrl: uploaded.secure_url,
@@ -47,6 +48,41 @@ export async function createProduct(request, response, next) {
     });
 
     response.status(201).json(product);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateProduct(request, response, next) {
+  try {
+    const product = await Product.findById(request.params.id);
+
+    if (!product) {
+      return response.status(404).json({ message: "Produit introuvable." });
+    }
+
+    product.name = request.body.name ?? product.name;
+    product.description = request.body.description ?? product.description;
+    product.category = request.body.category ?? product.category;
+    product.purchasePrice =
+      request.body.purchasePrice !== undefined ? Number(request.body.purchasePrice) : product.purchasePrice;
+    product.sellingPrice =
+      request.body.sellingPrice !== undefined ? Number(request.body.sellingPrice) : product.sellingPrice;
+    product.stock = request.body.stock !== undefined ? Number(request.body.stock) : product.stock;
+    product.featured =
+      request.body.featured !== undefined
+        ? request.body.featured === "on" || request.body.featured === "true" || request.body.featured === true
+        : product.featured;
+
+    if (request.file) {
+      await cloudinary.uploader.destroy(product.cloudinaryId);
+      const uploaded = await uploadToCloudinary(request.file);
+      product.imageUrl = uploaded.secure_url;
+      product.cloudinaryId = uploaded.public_id;
+    }
+
+    await product.save();
+    response.json(product);
   } catch (error) {
     next(error);
   }

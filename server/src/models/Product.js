@@ -17,7 +17,13 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
-    price: {
+    purchasePrice: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0
+    },
+    sellingPrice: {
       type: Number,
       required: true,
       min: 0
@@ -43,5 +49,12 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+productSchema.virtual("price").get(function price() {
+  return this.sellingPrice;
+});
+
+productSchema.set("toJSON", { virtuals: true });
+productSchema.set("toObject", { virtuals: true });
 
 export default mongoose.model("Product", productSchema);
