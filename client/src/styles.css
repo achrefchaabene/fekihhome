@@ -37,7 +37,8 @@ main {
 
 .topbar {
   align-items: center;
-  background: rgba(255, 250, 241, 0.92);
+  backdrop-filter: blur(16px);
+  background: rgba(255, 250, 241, 0.9);
   border-bottom: 1px solid #eadfcf;
   display: grid;
   gap: 16px;
@@ -127,10 +128,14 @@ main {
 }
 
 .hero {
+  background:
+    linear-gradient(120deg, rgba(31, 111, 91, 0.08), transparent 42%),
+    linear-gradient(180deg, #fffaf1 0%, #f6eadb 100%);
   display: grid;
   gap: clamp(24px, 4vw, 56px);
   grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
-  padding: clamp(44px, 7vw, 92px) clamp(18px, 4vw, 56px) 36px;
+  min-height: calc(100vh - 80px);
+  padding: clamp(44px, 7vw, 88px) clamp(18px, 4vw, 56px) 42px;
 }
 
 .heroText {
@@ -155,9 +160,9 @@ p {
 }
 
 h1 {
-  font-size: clamp(2.5rem, 7vw, 5.9rem);
+  font-size: clamp(2.65rem, 6.8vw, 5.75rem);
   letter-spacing: 0;
-  line-height: 0.96;
+  line-height: 0.98;
   margin-bottom: 22px;
   max-width: 900px;
 }
@@ -180,6 +185,23 @@ p {
 .heroText p {
   font-size: 1.12rem;
   max-width: 620px;
+}
+
+.heroStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.heroStats span {
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid #eadfcf;
+  border-radius: 999px;
+  color: #4e4439;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 9px 12px;
 }
 
 .heroActions {
@@ -214,7 +236,11 @@ p {
 
 .heroMedia {
   aspect-ratio: 4 / 5;
+  align-self: center;
+  border: 1px solid #eadfcf;
   border-radius: 8px;
+  box-shadow: 0 28px 70px rgba(52, 39, 24, 0.18);
+  max-height: 720px;
   overflow: hidden;
 }
 
@@ -285,14 +311,29 @@ p {
   padding: 0 clamp(18px, 4vw, 56px) 44px;
 }
 
-.cartBadge {
+.cartButton {
+  align-items: center;
   background: #1f6f5b;
   border-radius: 999px;
   color: #ffffff;
+  display: inline-flex;
   font-weight: 800;
   gap: 6px;
-  min-height: 32px;
-  padding: 6px 10px;
+  min-height: 38px;
+  padding: 8px 12px;
+  position: relative;
+}
+
+.cartButton span {
+  background: #ffffff;
+  border-radius: 999px;
+  color: #1f6f5b;
+  display: grid;
+  font-size: 0.76rem;
+  height: 20px;
+  min-width: 20px;
+  place-items: center;
+  padding: 0 6px;
 }
 
 .productCard {
@@ -349,6 +390,7 @@ p {
 
 .cartList,
 .checkoutForm,
+.checkoutEmpty,
 .categoryForm,
 .orderList,
 .statsPanel,
@@ -399,6 +441,21 @@ p {
 .checkoutForm textarea {
   min-height: 112px;
   resize: vertical;
+}
+
+.checkoutForm h3,
+.checkoutForm p,
+.checkoutEmpty h3,
+.checkoutEmpty p {
+  margin-bottom: 6px;
+}
+
+.checkoutEmpty {
+  align-self: start;
+  background: #ffffff;
+  border: 1px dashed #d6c5b0;
+  border-radius: 8px;
+  padding: 20px;
 }
 
 .authPanel p {

@@ -323,10 +323,10 @@ function App() {
 
         <div className="account">
           {mode === "visitor" && (
-            <span className="cartBadge">
+            <a className="cartButton" href="#cart" aria-label={`Panier, ${cartCount} article(s)`}>
               <ShoppingBag size={16} />
-              {cartCount}
-            </span>
+              <span>{cartCount}</span>
+            </a>
           )}
           {user ? (
             <>
@@ -355,6 +355,11 @@ function App() {
             FK Home rassemble des creations utiles, douces et elegantes: sacs, accessoires et
             pieces maison concus pour accompagner tes journees avec style.
           </p>
+          <div className="heroStats" aria-label="Avantages boutique">
+            <span>Fait main</span>
+            <span>Commandes suivies</span>
+            <span>Pieces selectionnees</span>
+          </div>
           <div className="heroActions">
             <a className="primary" href="#shop">Voir la boutique</a>
             <a className="secondary" href="#cart">Passer au panier</a>
@@ -428,13 +433,26 @@ function App() {
                 ))}
               </div>
             </div>
-            <form className="checkoutForm" onSubmit={handleOrder}>
-              <input name="firstName" placeholder="Prenom" required />
-              <input name="lastName" placeholder="Nom" required />
-              <input name="phone" placeholder="Numero telephone" required />
-              <textarea name="address" placeholder="Adresse complete" required />
-              <button className="primary" type="submit">Envoyer la commande</button>
-            </form>
+            {cart.length > 0 ? (
+              <form className="checkoutForm" onSubmit={handleOrder}>
+                <div>
+                  <h3>Informations de livraison</h3>
+                  <p>Remplis tes coordonnees pour envoyer la commande a l'admin.</p>
+                </div>
+                <input name="firstName" placeholder="Prenom" required />
+                <input name="lastName" placeholder="Nom" required />
+                <input name="phone" placeholder="Numero telephone" required />
+                <textarea name="address" placeholder="Adresse complete" required />
+                <button className="primary" type="submit">Envoyer la commande</button>
+              </form>
+            ) : (
+              <aside className="checkoutEmpty">
+                <ShoppingBag size={24} />
+                <h3>Choisis d'abord tes articles</h3>
+                <p>Le formulaire de commande apparait ici des que ton panier contient au moins un produit.</p>
+                <a className="secondary" href="#shop">Voir les produits</a>
+              </aside>
+            )}
           </section>
 
           <section className="authPanel" id="account">
