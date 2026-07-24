@@ -35,7 +35,8 @@ export async function createOrder(request, response, next) {
         return response.status(400).json({ message: `Stock insuffisant pour ${product.name}.` });
       }
 
-      const lineTotal = product.sellingPrice * quantity;
+      const unitPrice = product.promotion?.enabled && product.promotion.price > 0 ? product.promotion.price : product.sellingPrice;
+      const lineTotal = unitPrice * quantity;
       const lineCost = product.purchasePrice * quantity;
 
       orderItems.push({
@@ -43,7 +44,7 @@ export async function createOrder(request, response, next) {
         name: product.name,
         quantity,
         purchasePrice: product.purchasePrice,
-        sellingPrice: product.sellingPrice,
+        sellingPrice: unitPrice,
         lineTotal,
         lineProfit: lineTotal - lineCost
       });

@@ -41,6 +41,10 @@ export async function createProduct(request, response, next) {
       category: request.body.category,
       purchasePrice: Number(request.body.purchasePrice || 0),
       sellingPrice: Number(request.body.sellingPrice || request.body.price),
+      promotion: {
+        enabled: request.body.promotionEnabled === "on" || request.body.promotionEnabled === "true",
+        price: Number(request.body.promotionPrice || 0)
+      },
       stock: Number(request.body.stock),
       featured: request.body.featured === "on" || request.body.featured === "true",
       imageUrl: uploaded.secure_url,
@@ -68,6 +72,18 @@ export async function updateProduct(request, response, next) {
       request.body.purchasePrice !== undefined ? Number(request.body.purchasePrice) : product.purchasePrice;
     product.sellingPrice =
       request.body.sellingPrice !== undefined ? Number(request.body.sellingPrice) : product.sellingPrice;
+    product.promotion = {
+      enabled:
+        request.body.promotionEnabled !== undefined
+          ? request.body.promotionEnabled === "on" ||
+            request.body.promotionEnabled === "true" ||
+            request.body.promotionEnabled === true
+          : product.promotion?.enabled || false,
+      price:
+        request.body.promotionPrice !== undefined
+          ? Number(request.body.promotionPrice || 0)
+          : product.promotion?.price || 0
+    };
     product.stock = request.body.stock !== undefined ? Number(request.body.stock) : product.stock;
     product.featured =
       request.body.featured !== undefined

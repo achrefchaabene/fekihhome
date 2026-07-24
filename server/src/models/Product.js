@@ -28,6 +28,17 @@ const productSchema = new mongoose.Schema(
       required: true,
       min: 0
     },
+    promotion: {
+      enabled: {
+        type: Boolean,
+        default: false
+      },
+      price: {
+        type: Number,
+        min: 0,
+        default: 0
+      }
+    },
     stock: {
       type: Number,
       required: true,
@@ -51,7 +62,29 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.virtual("price").get(function price() {
-  return this.sellingPrice;
+  return this.promotion?.enabled && this.promotion.price > 0 ? this.promotion.price : this.sellingPrice;
+});
+
+productSchema.pre("validate", function validatePrices(next) {
+  if (this.purchasePrice >= this.sellingPrice) {
+    return next(new Error("Le prix d'achat doit etre inferieur au prix a vendre."));
+  }
+
+  if (this.promotion?.enabled) {
+    if (!this.promotion.price || this.promotion.price <= 0) {
+      return next(new Error("Le prix promotionnel est requis."));
+    }
+
+    if (this.promotion.price >= this.sellingPrice) {
+      return next(new Error("Le prix promotionnel doit etre inferieur au prix a vendre."));
+    }
+
+    if (this.promotion.price <= this.purchasePrice) {
+      return next(new Error("Le prix promotionnel doit rester superieur au prix d'achat."));
+    }
+  }
+
+  next();
 });
 
 productSchema.set("toJSON", { virtuals: true });

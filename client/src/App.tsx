@@ -38,6 +38,7 @@ const sampleProducts: Product[] = [
     category: "Sacs",
     purchasePrice: 18,
     sellingPrice: 35,
+    promotion: { enabled: true, price: 29 },
     price: 35,
     stock: 12,
     imageUrl: "/home-hero.png",
@@ -50,6 +51,7 @@ const sampleProducts: Product[] = [
     category: "Papeterie",
     purchasePrice: 8,
     sellingPrice: 18,
+    promotion: { enabled: false, price: 0 },
     price: 18,
     stock: 14,
     imageUrl:
@@ -63,6 +65,7 @@ const sampleProducts: Product[] = [
     category: "Maison",
     purchasePrice: 22,
     sellingPrice: 39,
+    promotion: { enabled: false, price: 0 },
     price: 39,
     stock: 7,
     imageUrl:
@@ -79,6 +82,10 @@ const fallbackStats: OrderStats = {
 
 function money(value: number) {
   return `${value.toFixed(2)} EUR`;
+}
+
+function productPrice(product: Product) {
+  return product.promotion?.enabled && product.promotion.price > 0 ? product.promotion.price : product.sellingPrice;
 }
 
 function App() {
@@ -136,7 +143,7 @@ function App() {
     });
   }, [products, query]);
 
-  const cartTotal = cart.reduce((sum, item) => sum + item.product.sellingPrice * item.quantity, 0);
+  const cartTotal = cart.reduce((sum, item) => sum + productPrice(item.product) * item.quantity, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   function logout() {
@@ -225,6 +232,20 @@ function App() {
   async function handleCreateProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    const purchasePrice = Number(form.get("purchasePrice"));
+    const sellingPrice = Number(form.get("sellingPrice"));
+    const promotionEnabled = form.get("promotionEnabled") === "on";
+    const promotionPrice = Number(form.get("promotionPrice") || 0);
+
+    if (purchasePrice >= sellingPrice) {
+      setMessage("Le prix d'achat doit etre inferieur au prix a vendre.");
+      return;
+    }
+
+    if (promotionEnabled && (promotionPrice <= purchasePrice || promotionPrice >= sellingPrice)) {
+      setMessage("Le prix promotionnel doit etre entre le prix d'achat et le prix a vendre.");
+      return;
+    }
 
     try {
       const created = await api.createProduct(form);
@@ -398,7 +419,10 @@ function App() {
                   <h3>{product.name}</h3>
                   <p>{product.description}</p>
                   <div className="productFooter">
-                    <strong>{money(product.sellingPrice)}</strong>
+                    <div className="priceStack">
+                      {product.promotion?.enabled && <span>{money(product.sellingPrice)}</span>}
+                      <strong>{money(productPrice(product))}</strong>
+                    </div>
                     <button onClick={() => addToCart(product)}>Ajouter</button>
                   </div>
                 </div>
@@ -417,7 +441,7 @@ function App() {
                     <img src={item.product.imageUrl} alt={item.product.name} />
                     <div>
                       <h3>{item.product.name}</h3>
-                      <p>{money(item.product.sellingPrice)} / piece</p>
+                      <p>{money(productPrice(item.product))} / piece</p>
                     </div>
                     <input
                       aria-label={`Quantite ${item.product.name}`}
@@ -557,6 +581,11 @@ function App() {
                 </select>
                 <input name="purchasePrice" type="number" min="0" step="0.01" placeholder="Prix d'achat" required disabled={!isAdmin} />
                 <input name="sellingPrice" type="number" min="0" step="0.01" placeholder="Prix a vendre" required disabled={!isAdmin} />
+                <label className="check">
+                  <input name="promotionEnabled" type="checkbox" disabled={!isAdmin} />
+                  Promotion
+                </label>
+                <input name="promotionPrice" type="number" min="0" step="0.01" placeholder="Prix promotionnel" disabled={!isAdmin} />
                 <input name="stock" type="number" min="0" placeholder="Stock" required disabled={!isAdmin} />
                 <textarea name="description" placeholder="Description" required disabled={!isAdmin} />
                 <input name="image" type="file" accept="image/*" required disabled={!isAdmin} />
@@ -578,6 +607,7 @@ function App() {
                       <h3>{product.name}</h3>
                       <p>
                         Achat {money(product.purchasePrice)} - Vente {money(product.sellingPrice)} - Stock {product.stock}
+                        {product.promotion?.enabled ? ` - Promo ${money(product.promotion.price)}` : ""}
                       </p>
                     </div>
                     <button onClick={() => handleDeleteProduct(product._id)} disabled={!isAdmin && !product._id.startsWith("sample")}>

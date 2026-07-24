@@ -7,6 +7,10 @@ export type Product = {
   category: string;
   purchasePrice: number;
   sellingPrice: number;
+  promotion?: {
+    enabled: boolean;
+    price: number;
+  };
   price: number;
   stock: number;
   imageUrl: string;

@@ -367,6 +367,22 @@ p {
   margin-top: 18px;
 }
 
+.priceStack {
+  display: grid;
+  gap: 2px;
+}
+
+.priceStack span {
+  color: #8c7b6a;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: line-through;
+}
+
+.priceStack strong {
+  color: #1f6f5b;
+}
+
 .productFooter button {
   background: #241f1b;
   color: white;
