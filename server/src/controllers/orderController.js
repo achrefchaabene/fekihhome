@@ -43,6 +43,8 @@ export async function createOrder(request, response, next) {
         product: product._id,
         name: product.name,
         quantity,
+        colorName: item.colorName || "",
+        colorHex: item.colorHex || "",
         purchasePrice: product.purchasePrice,
         sellingPrice: unitPrice,
         lineTotal,

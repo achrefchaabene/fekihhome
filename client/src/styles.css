@@ -273,6 +273,23 @@ p {
   justify-content: space-between;
 }
 
+.filtersBar {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(120px, 0.35fr) minmax(120px, 0.35fr);
+  padding: 0 clamp(18px, 4vw, 56px) 24px;
+}
+
+.filtersBar input,
+.filtersBar select {
+  background: #ffffff;
+  border: 1px solid #e0d2c4;
+  border-radius: 8px;
+  min-height: 46px;
+  padding: 12px;
+  width: 100%;
+}
+
 .search {
   background: #ffffff;
   border: 1px solid #e7dccf;
@@ -340,12 +357,43 @@ p {
   background: #ffffff;
   border: 1px solid #eadfcf;
   border-radius: 8px;
+  box-shadow: 0 16px 38px rgba(52, 39, 24, 0.08);
   overflow: hidden;
 }
 
-.productCard img {
+.productImageButton {
+  background: #f5eadc;
+  border: 0;
+  display: block;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  width: 100%;
+}
+
+.productImageButton img {
   aspect-ratio: 4 / 3;
   display: block;
+  transition: transform 180ms ease;
+}
+
+.productImageButton:hover img {
+  transform: scale(1.035);
+}
+
+.promoBadge {
+  align-items: center;
+  background: #1f6f5b;
+  border-radius: 999px;
+  color: #ffffff;
+  display: flex;
+  font-size: 0.78rem;
+  font-weight: 900;
+  gap: 5px;
+  left: 12px;
+  padding: 7px 10px;
+  position: absolute;
+  top: 12px;
 }
 
 .productCard > div {
@@ -357,6 +405,39 @@ p {
   font-size: 0.78rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.productTitle {
+  background: transparent;
+  border: 0;
+  color: #241f1b;
+  display: block;
+  font-size: 1.12rem;
+  font-weight: 900;
+  margin: 8px 0;
+  padding: 0;
+  text-align: left;
+}
+
+.colorSwatches,
+.adminColors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.colorSwatches button {
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px #c9bba9;
+  height: 26px;
+  padding: 0;
+  width: 26px;
+}
+
+.colorSwatches button.active {
+  box-shadow: 0 0 0 3px #1f6f5b;
 }
 
 .productFooter {
@@ -386,6 +467,19 @@ p {
 .productFooter button {
   background: #241f1b;
   color: white;
+}
+
+.productActions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.productActions .quietButton {
+  background: #f2e6d8;
+  color: #241f1b;
+  min-width: 44px;
+  padding: 12px;
 }
 
 .authPanel {
@@ -436,6 +530,26 @@ p {
 .cartList h3,
 .cartList p {
   margin-bottom: 0;
+}
+
+.cartColor,
+.adminColors span {
+  align-items: center;
+  color: #6a5d4f;
+  display: inline-flex;
+  font-size: 0.86rem;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.cartColor i,
+.adminColors i,
+.detailColors i {
+  border: 1px solid #c7b8a5;
+  border-radius: 999px;
+  display: inline-block;
+  height: 14px;
+  width: 14px;
 }
 
 .cartList input {
@@ -696,6 +810,86 @@ p {
   padding: 12px;
 }
 
+.productModal {
+  align-items: center;
+  background: rgba(36, 31, 27, 0.62);
+  display: grid;
+  inset: 0;
+  padding: 24px;
+  place-items: center;
+  position: fixed;
+  z-index: 30;
+}
+
+.productModal article {
+  background: #fffaf1;
+  border-radius: 8px;
+  display: grid;
+  gap: 0;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(280px, 1fr);
+  max-width: 980px;
+  overflow: hidden;
+  position: relative;
+  width: min(100%, 980px);
+}
+
+.productModal img {
+  height: 100%;
+  min-height: 420px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.productModal article > div {
+  display: grid;
+  gap: 16px;
+  padding: 28px;
+}
+
+.modalClose {
+  background: #ffffff;
+  border: 0;
+  border-radius: 999px;
+  display: grid;
+  height: 40px;
+  place-items: center;
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 40px;
+  z-index: 2;
+}
+
+.detailColors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detailColors button {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e0d2c4;
+  border-radius: 999px;
+  display: flex;
+  gap: 7px;
+  padding: 9px 11px;
+}
+
+.detailColors button.active {
+  border-color: #1f6f5b;
+  color: #1f6f5b;
+  font-weight: 900;
+}
+
+.modalPrice {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: space-between;
+}
+
 button:disabled,
 input:disabled,
 select:disabled,
@@ -727,8 +921,14 @@ textarea:disabled {
   .productForm,
   .categoryForm,
   .orderList,
-  .statGrid {
+  .statGrid,
+  .filtersBar,
+  .productModal article {
     grid-template-columns: 1fr;
+  }
+
+  .productModal img {
+    min-height: 260px;
   }
 
   .statsTable article {

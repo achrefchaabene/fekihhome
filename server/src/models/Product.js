@@ -39,6 +39,23 @@ const productSchema = new mongoose.Schema(
         default: 0
       }
     },
+    colors: {
+      type: [
+        {
+          name: {
+            type: String,
+            trim: true,
+            required: true
+          },
+          hex: {
+            type: String,
+            trim: true,
+            default: "#1f6f5b"
+          }
+        }
+      ],
+      default: []
+    },
     stock: {
       type: Number,
       required: true,

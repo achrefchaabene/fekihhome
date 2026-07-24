@@ -16,6 +16,16 @@ const orderItemSchema = new mongoose.Schema(
       required: true,
       min: 1
     },
+    colorName: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    colorHex: {
+      type: String,
+      trim: true,
+      default: ""
+    },
     purchasePrice: {
       type: Number,
       required: true,

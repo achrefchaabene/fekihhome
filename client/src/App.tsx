@@ -2,13 +2,16 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
   Check,
+  Eye,
   LayoutDashboard,
   LogOut,
   PackagePlus,
   Search,
   ShieldCheck,
+  SlidersHorizontal,
   ShoppingBag,
   Sparkles,
+  Tag,
   Trash2,
   UserRound,
   X
@@ -28,6 +31,8 @@ import {
 type CartItem = {
   product: Product;
   quantity: number;
+  colorName?: string;
+  colorHex?: string;
 };
 
 const sampleProducts: Product[] = [
@@ -39,6 +44,11 @@ const sampleProducts: Product[] = [
     purchasePrice: 18,
     sellingPrice: 35,
     promotion: { enabled: true, price: 29 },
+    colors: [
+      { name: "Menthe", hex: "#9ddfca" },
+      { name: "Noir", hex: "#171717" },
+      { name: "Creme", hex: "#f1e8d5" }
+    ],
     price: 35,
     stock: 12,
     imageUrl: "/home-hero.png",
@@ -52,6 +62,10 @@ const sampleProducts: Product[] = [
     purchasePrice: 8,
     sellingPrice: 18,
     promotion: { enabled: false, price: 0 },
+    colors: [
+      { name: "Kraft", hex: "#b9854f" },
+      { name: "Ivoire", hex: "#f7f0df" }
+    ],
     price: 18,
     stock: 14,
     imageUrl:
@@ -66,6 +80,10 @@ const sampleProducts: Product[] = [
     purchasePrice: 22,
     sellingPrice: 39,
     promotion: { enabled: false, price: 0 },
+    colors: [
+      { name: "Bois clair", hex: "#d4a15f" },
+      { name: "Noyer", hex: "#6c4427" }
+    ],
     price: 39,
     stock: 7,
     imageUrl:
@@ -101,6 +119,11 @@ function App() {
   );
   const [adminTab, setAdminTab] = useState<"orders" | "products" | "categories" | "stats">("orders");
   const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [selectedColors, setSelectedColors] = useState<Record<string, number>>({});
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [message, setMessage] = useState("");
 
@@ -139,9 +162,20 @@ function App() {
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const text = `${product.name} ${product.category} ${product.description}`.toLowerCase();
-      return text.includes(query.toLowerCase());
+      const price = productPrice(product);
+      const matchesText = text.includes(query.toLowerCase());
+      const matchesCategory = categoryFilter === "all" || product.category === categoryFilter;
+      const matchesMin = minPrice === "" || price >= Number(minPrice);
+      const matchesMax = maxPrice === "" || price <= Number(maxPrice);
+      return matchesText && matchesCategory && matchesMin && matchesMax;
     });
-  }, [products, query]);
+  }, [products, query, categoryFilter, minPrice, maxPrice]);
+
+  const categoryOptions = useMemo(() => {
+    const apiCategories = categories.map((category) => category.name);
+    const productCategories = products.map((product) => product.category);
+    return Array.from(new Set([...apiCategories, ...productCategories])).filter(Boolean).sort();
+  }, [categories, products]);
 
   const cartTotal = cart.reduce((sum, item) => sum + productPrice(item.product) * item.quantity, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -152,26 +186,47 @@ function App() {
     setMode("visitor");
   }
 
+  function selectedColor(product: Product) {
+    const colors = product.colors || [];
+    return colors[selectedColors[product._id] || 0];
+  }
+
   function addToCart(product: Product) {
+    const color = selectedColor(product);
     setCart((current) => {
-      const existing = current.find((item) => item.product._id === product._id);
+      const existing = current.find(
+        (item) => item.product._id === product._id && (item.colorName || "") === (color?.name || "")
+      );
       if (existing) {
         return current.map((item) =>
-          item.product._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
+          item.product._id === product._id && (item.colorName || "") === (color?.name || "")
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
-      return [...current, { product, quantity: 1 }];
+      return [...current, { product, quantity: 1, colorName: color?.name, colorHex: color?.hex }];
     });
   }
 
-  function changeQuantity(productId: string, quantity: number) {
+  function buyNow(product: Product) {
+    addToCart(product);
+    window.setTimeout(() => document.getElementById("cart")?.scrollIntoView({ behavior: "smooth" }), 80);
+  }
+
+  function changeQuantity(productId: string, colorName: string | undefined, quantity: number) {
     if (quantity < 1) {
-      setCart((current) => current.filter((item) => item.product._id !== productId));
+      setCart((current) =>
+        current.filter((item) => !(item.product._id === productId && (item.colorName || "") === (colorName || "")))
+      );
       return;
     }
 
     setCart((current) =>
-      current.map((item) => (item.product._id === productId ? { ...item, quantity } : item))
+      current.map((item) =>
+        item.product._id === productId && (item.colorName || "") === (colorName || "")
+          ? { ...item, quantity }
+          : item
+      )
     );
   }
 
@@ -221,7 +276,12 @@ function App() {
           phone: String(form.get("phone") ?? ""),
           address: String(form.get("address") ?? "")
         },
-        items: cart.map((item) => ({ productId: item.product._id, quantity: item.quantity }))
+        items: cart.map((item) => ({
+          productId: item.product._id,
+          quantity: item.quantity,
+          colorName: item.colorName,
+          colorHex: item.colorHex
+        }))
       });
       setCart([]);
       setMessage("Commande envoyee a l'admin avec succes.");
@@ -375,10 +435,10 @@ function App() {
             <Sparkles size={16} />
             Boutique artisanale et productive
           </span>
-          <h1>Pieces artisanales, pensees pour embellir chaque geste du quotidien.</h1>
+          <h1>FK Home, creations elegantes pour un quotidien plus doux.</h1>
           <p>
-            FK Home rassemble des creations utiles, douces et elegantes: sacs, accessoires et
-            pieces maison concus pour accompagner tes journees avec style.
+            Decouvre une selection artisanale de sacs, accessoires et pieces maison,
+            classee avec soin pour choisir vite, acheter simplement et commander sans compte.
           </p>
           <div className="heroStats" aria-label="Avantages boutique">
             <span>Fait main</span>
@@ -401,8 +461,12 @@ function App() {
         <>
           <section className="toolbar" id="shop">
             <div>
-              <h2>Collection</h2>
-              <p>{filteredProducts.length} produits disponibles</p>
+              <span className="eyebrow">
+                <SlidersHorizontal size={16} />
+                Selection boutique
+              </span>
+              <h2>Produits</h2>
+              <p>{filteredProducts.length} article(s) selon tes filtres</p>
             </div>
             <label className="search">
               <Search size={18} />
@@ -414,20 +478,70 @@ function App() {
             </label>
           </section>
 
+          <section className="filtersBar" aria-label="Filtres produits">
+            <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
+              <option value="all">Toutes categories</option>
+              {categoryOptions.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+            <input
+              value={minPrice}
+              min="0"
+              type="number"
+              placeholder="Prix min"
+              onChange={(event) => setMinPrice(event.target.value)}
+            />
+            <input
+              value={maxPrice}
+              min="0"
+              type="number"
+              placeholder="Prix max"
+              onChange={(event) => setMaxPrice(event.target.value)}
+            />
+          </section>
+
           <section className="productGrid">
             {filteredProducts.map((product) => (
               <article className="productCard" key={product._id}>
-                <img src={product.imageUrl} alt={product.name} />
+                <button className="productImageButton" onClick={() => setDetailProduct(product)}>
+                  <img src={product.imageUrl} alt={product.name} />
+                  {product.promotion?.enabled && (
+                    <span className="promoBadge">
+                      <Tag size={14} />
+                      Promo
+                    </span>
+                  )}
+                </button>
                 <div>
                   <span className="category">{product.category}</span>
-                  <h3>{product.name}</h3>
+                  <button className="productTitle" onClick={() => setDetailProduct(product)}>{product.name}</button>
                   <p>{product.description}</p>
+                  {(product.colors?.length || 0) > 0 && (
+                    <div className="colorSwatches" aria-label={`Couleurs ${product.name}`}>
+                      {product.colors?.map((color, index) => (
+                        <button
+                          key={`${product._id}-${color.name}`}
+                          className={selectedColors[product._id] === index || (!selectedColors[product._id] && index === 0) ? "active" : ""}
+                          onClick={() => setSelectedColors((current) => ({ ...current, [product._id]: index }))}
+                          style={{ backgroundColor: color.hex }}
+                          title={color.name}
+                          aria-label={color.name}
+                        />
+                      ))}
+                    </div>
+                  )}
                   <div className="productFooter">
                     <div className="priceStack">
                       {product.promotion?.enabled && <span>{money(product.sellingPrice)}</span>}
                       <strong>{money(productPrice(product))}</strong>
                     </div>
-                    <button onClick={() => addToCart(product)}>Ajouter</button>
+                    <div className="productActions">
+                      <button className="quietButton" onClick={() => setDetailProduct(product)}>
+                        <Eye size={16} />
+                      </button>
+                      <button onClick={() => buyNow(product)}>Acheter</button>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -441,20 +555,26 @@ function App() {
               <div className="cartList">
                 {cart.length === 0 && <p>Ton panier est vide.</p>}
                 {cart.map((item) => (
-                  <article key={item.product._id}>
+                  <article key={`${item.product._id}-${item.colorName || "default"}`}>
                     <img src={item.product.imageUrl} alt={item.product.name} />
                     <div>
                       <h3>{item.product.name}</h3>
                       <p>{money(productPrice(item.product))} / piece</p>
+                      {item.colorName && (
+                        <span className="cartColor">
+                          <i style={{ backgroundColor: item.colorHex }} />
+                          {item.colorName}
+                        </span>
+                      )}
                     </div>
                     <input
                       aria-label={`Quantite ${item.product.name}`}
                       min="1"
                       type="number"
                       value={item.quantity}
-                      onChange={(event) => changeQuantity(item.product._id, Number(event.target.value))}
+                      onChange={(event) => changeQuantity(item.product._id, item.colorName, Number(event.target.value))}
                     />
-                    <button className="iconButton" onClick={() => changeQuantity(item.product._id, 0)} aria-label="Retirer">
+                    <button className="iconButton" onClick={() => changeQuantity(item.product._id, item.colorName, 0)} aria-label="Retirer">
                       <Trash2 size={18} />
                     </button>
                   </article>
@@ -591,6 +711,8 @@ function App() {
                 </label>
                 <input name="promotionPrice" type="number" min="0" step="0.01" placeholder="Prix promotionnel" disabled={!isAdmin} />
                 <input name="stock" type="number" min="0" placeholder="Stock" required disabled={!isAdmin} />
+                <input name="colorNames" placeholder="Couleurs: Noir, Beige, Rouge" disabled={!isAdmin} />
+                <input name="colorHexes" placeholder="Codes: #111111, #eadfcf, #b43a32" disabled={!isAdmin} />
                 <textarea name="description" placeholder="Description" required disabled={!isAdmin} />
                 <input name="image" type="file" accept="image/*" required disabled={!isAdmin} />
                 <label className="check">
@@ -613,6 +735,16 @@ function App() {
                         Achat {money(product.purchasePrice)} - Vente {money(product.sellingPrice)} - Stock {product.stock}
                         {product.promotion?.enabled ? ` - Promo ${money(product.promotion.price)}` : ""}
                       </p>
+                      {(product.colors?.length || 0) > 0 && (
+                        <div className="adminColors">
+                          {product.colors?.map((color) => (
+                            <span key={`${product._id}-${color.name}`}>
+                              <i style={{ backgroundColor: color.hex }} />
+                              {color.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <button onClick={() => handleDeleteProduct(product._id)} disabled={!isAdmin && !product._id.startsWith("sample")}>
                       Supprimer
@@ -670,6 +802,45 @@ function App() {
             </div>
           )}
         </section>
+      )}
+
+      {detailProduct && (
+        <div className="productModal" role="dialog" aria-modal="true" aria-label={detailProduct.name}>
+          <article>
+            <button className="modalClose" onClick={() => setDetailProduct(null)} aria-label="Fermer">
+              <X size={20} />
+            </button>
+            <img src={detailProduct.imageUrl} alt={detailProduct.name} />
+            <div>
+              <span className="category">{detailProduct.category}</span>
+              <h2>{detailProduct.name}</h2>
+              <p>{detailProduct.description}</p>
+              {(detailProduct.colors?.length || 0) > 0 && (
+                <div className="detailColors">
+                  {detailProduct.colors?.map((color, index) => (
+                    <button
+                      key={`${detailProduct._id}-detail-${color.name}`}
+                      className={selectedColors[detailProduct._id] === index || (!selectedColors[detailProduct._id] && index === 0) ? "active" : ""}
+                      onClick={() => setSelectedColors((current) => ({ ...current, [detailProduct._id]: index }))}
+                    >
+                      <i style={{ backgroundColor: color.hex }} />
+                      {color.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="modalPrice">
+                <div className="priceStack">
+                  {detailProduct.promotion?.enabled && <span>{money(detailProduct.sellingPrice)}</span>}
+                  <strong>{money(productPrice(detailProduct))}</strong>
+                </div>
+                <button className="primary" onClick={() => { buyNow(detailProduct); setDetailProduct(null); }}>
+                  Acheter maintenant
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
       )}
     </main>
   );

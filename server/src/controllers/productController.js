@@ -19,6 +19,36 @@ function uploadToCloudinary(file) {
   });
 }
 
+function parseColors(body) {
+  if (body.colors) {
+    try {
+      const parsed = JSON.parse(body.colors);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((color) => color?.name).map((color) => ({
+          name: String(color.name),
+          hex: String(color.hex || "#1f6f5b")
+        }));
+      }
+    } catch {
+      return [];
+    }
+  }
+
+  const names = String(body.colorNames || "")
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean);
+  const hexes = String(body.colorHexes || "")
+    .split(",")
+    .map((hex) => hex.trim())
+    .filter(Boolean);
+
+  return names.map((name, index) => ({
+    name,
+    hex: hexes[index] || "#1f6f5b"
+  }));
+}
+
 export async function listProducts(_request, response, next) {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
@@ -45,6 +75,7 @@ export async function createProduct(request, response, next) {
         enabled: request.body.promotionEnabled === "on" || request.body.promotionEnabled === "true",
         price: Number(request.body.promotionPrice || 0)
       },
+      colors: parseColors(request.body),
       stock: Number(request.body.stock),
       featured: request.body.featured === "on" || request.body.featured === "true",
       imageUrl: uploaded.secure_url,
@@ -84,6 +115,9 @@ export async function updateProduct(request, response, next) {
           ? Number(request.body.promotionPrice || 0)
           : product.promotion?.price || 0
     };
+    if (request.body.colors !== undefined || request.body.colorNames !== undefined || request.body.colorHexes !== undefined) {
+      product.colors = parseColors(request.body);
+    }
     product.stock = request.body.stock !== undefined ? Number(request.body.stock) : product.stock;
     product.featured =
       request.body.featured !== undefined

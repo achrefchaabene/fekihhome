@@ -11,6 +11,10 @@ export type Product = {
     enabled: boolean;
     price: number;
   };
+  colors?: Array<{
+    name: string;
+    hex: string;
+  }>;
   price: number;
   stock: number;
   imageUrl: string;
@@ -38,6 +42,8 @@ export type Order = {
     product: string;
     name: string;
     quantity: number;
+    colorName?: string;
+    colorHex?: string;
     purchasePrice: number;
     sellingPrice: number;
     lineTotal: number;
@@ -167,7 +173,7 @@ export const api = {
     }),
   createOrder: (payload: {
     customer: { firstName: string; lastName: string; phone: string; address: string };
-    items: Array<{ productId: string; quantity: number }>;
+    items: Array<{ productId: string; quantity: number; colorName?: string; colorHex?: string }>;
   }) =>
     request<Order>("/orders", {
       method: "POST",
