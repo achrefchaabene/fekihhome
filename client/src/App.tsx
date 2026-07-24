@@ -81,7 +81,7 @@ const fallbackStats: OrderStats = {
 };
 
 function money(value: number) {
-  return `${value.toFixed(2)} EUR`;
+  return `${value.toFixed(2)} TND`;
 }
 
 function productPrice(product: Product) {
@@ -177,7 +177,8 @@ function App() {
 
   async function handleAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const name = String(form.get("name") ?? "");
     const email = String(form.get("email") ?? "");
     const password = String(form.get("password") ?? "");
@@ -196,7 +197,7 @@ function App() {
           ? `Bienvenue ${session.user.name}, espace admin ouvert.`
           : `Bienvenue ${session.user.name}, espace visiteur ouvert.`
       );
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Connexion impossible.");
     }
@@ -204,12 +205,13 @@ function App() {
 
   async function handleOrder(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const formElement = event.currentTarget;
     if (cart.length === 0) {
       setMessage("Ajoute au moins un article au panier.");
       return;
     }
 
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(formElement);
 
     try {
       await api.createOrder({
@@ -223,7 +225,7 @@ function App() {
       });
       setCart([]);
       setMessage("Commande envoyee a l'admin avec succes.");
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Commande non envoyee.");
     }
@@ -231,7 +233,8 @@ function App() {
 
   async function handleCreateProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const purchasePrice = Number(form.get("purchasePrice"));
     const sellingPrice = Number(form.get("sellingPrice"));
     const promotionEnabled = form.get("promotionEnabled") === "on";
@@ -251,7 +254,7 @@ function App() {
       const created = await api.createProduct(form);
       setProducts((current) => [created, ...current.filter((item) => !item._id.startsWith("sample"))]);
       setMessage("Produit ajoute avec succes.");
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Produit non ajoute.");
     }
@@ -274,7 +277,8 @@ function App() {
 
   async function handleCreateCategory(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
 
     try {
       const category = await api.createCategory(
@@ -283,7 +287,7 @@ function App() {
       );
       setCategories((current) => [...current, category].sort((a, b) => a.name.localeCompare(b.name)));
       setMessage("Categorie ajoutee.");
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Categorie non ajoutee.");
     }
