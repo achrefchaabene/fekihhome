@@ -441,7 +441,7 @@ function App() {
           <h1>Lamsa</h1>
           <p dir="rtl" className="heroCopy">
             اكتشفي لمسة فريدة من الإبداع اليدوي: حقائب، إكسسوارات وقطع منزلية أنيقة
-            تختارينها بسهولة وتطلبينها بسرعة دون الحاجة إلى إنشاء حساب.
+            تختارينها بسهولة وتطلبينها بسرعة.
           </p>
           <div className="heroStats" aria-label="Avantages boutique">
             <span>تصاميم مختارة</span>
