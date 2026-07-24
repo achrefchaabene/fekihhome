@@ -185,7 +185,7 @@ function App() {
         </div>
         <div className="heroMedia" aria-hidden="true">
           <img
-            src="https://images.unsplash.com/photo-1497219055242-93359eeed651?auto=format&fit=crop&w=1200&q=80"
+            src="/home-hero.png"
             alt=""
           />
         </div>
