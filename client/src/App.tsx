@@ -115,7 +115,7 @@ function App() {
       if (productItems.length > 0) setProducts(productItems);
       setCategories(categoryItems);
     } catch {
-      setMessage("Mode demo actif: connecte l'API pour charger MongoDB Atlas.");
+      setMessage("");
     }
   }
 
@@ -350,10 +350,10 @@ function App() {
             <Sparkles size={16} />
             Boutique artisanale et productive
           </span>
-          <h1>Des objets faits main pour travailler, creer et habiter mieux.</h1>
+          <h1>Pieces artisanales, pensees pour embellir chaque geste du quotidien.</h1>
           <p>
-            Choisis tes articles, envoie ton panier, puis l'admin accepte ou refuse la commande
-            depuis son espace de gestion.
+            FK Home rassemble des creations utiles, douces et elegantes: sacs, accessoires et
+            pieces maison concus pour accompagner tes journees avec style.
           </p>
           <div className="heroActions">
             <a className="primary" href="#shop">Voir la boutique</a>
