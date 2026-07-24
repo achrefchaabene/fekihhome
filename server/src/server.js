@@ -7,15 +7,19 @@ import productRoutes from "./routes/productRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
+function normalizeOrigin(origin) {
+  return origin?.trim().replace(/\/+$/, "");
+}
+
 const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
   .split(",")
-  .map((origin) => origin.trim())
+  .map(normalizeOrigin)
   .filter(Boolean);
 
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(normalizeOrigin(origin))) {
         return callback(null, true);
       }
 
