@@ -7,7 +7,16 @@ function uploadToCloudinary(file) {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: "fekihhome/products",
-        resource_type: "image"
+        resource_type: "image",
+        transformation: [
+          {
+            width: 1800,
+            height: 1800,
+            crop: "limit",
+            quality: "auto:best",
+            fetch_format: "auto"
+          }
+        ]
       },
       (error, result) => {
         if (error) return reject(error);

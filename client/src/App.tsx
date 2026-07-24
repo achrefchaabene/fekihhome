@@ -65,6 +65,14 @@ function productPrice(product: Product) {
   return product.promotion?.enabled && product.promotion.price > 0 ? product.promotion.price : product.sellingPrice;
 }
 
+function productImageUrl(url: string, width = 900) {
+  if (!url.includes("res.cloudinary.com") || !url.includes("/image/upload/")) {
+    return url;
+  }
+
+  return url.replace("/image/upload/", `/image/upload/f_auto,q_auto:best,dpr_auto,w_${width},c_limit/`);
+}
+
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -541,7 +549,7 @@ function App() {
             {filteredProducts.map((product) => (
               <article className="productCard" key={product._id}>
                 <button className="productImageButton" onClick={() => setDetailProduct(product)}>
-                  <img src={product.imageUrl} alt={product.name} />
+                  <img src={productImageUrl(product.imageUrl, 1000)} alt={product.name} />
                   {product.promotion?.enabled && (
                     <span className="promoBadge">
                       <Tag size={14} />
@@ -610,7 +618,7 @@ function App() {
                 {cart.length === 0 && <p>Ton panier est vide.</p>}
                 {cart.map((item) => (
                   <article key={`${item.product._id}-${item.colorName || "default"}`}>
-                    <img src={item.product.imageUrl} alt={item.product.name} />
+                    <img src={productImageUrl(item.product.imageUrl, 220)} alt={item.product.name} />
                     <div>
                       <h3>{item.product.name}</h3>
                       <p>{money(productPrice(item.product))} / piece</p>
@@ -826,7 +834,7 @@ function App() {
               <div className="adminList">
                 {products.map((product) => (
                   <article key={product._id}>
-                    <img src={product.imageUrl} alt={product.name} />
+                    <img src={productImageUrl(product.imageUrl, 260)} alt={product.name} />
                     <div>
                       <h3>{product.name}</h3>
                       <p>
@@ -915,7 +923,7 @@ function App() {
             <button className="modalClose" onClick={() => setDetailProduct(null)} aria-label="Fermer">
               <X size={20} />
             </button>
-            <img src={detailProduct.imageUrl} alt={detailProduct.name} />
+            <img src={productImageUrl(detailProduct.imageUrl, 1500)} alt={detailProduct.name} />
             <div>
               <span className="category">{detailProduct.category}</span>
               <h2>{detailProduct.name}</h2>
