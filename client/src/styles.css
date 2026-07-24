@@ -894,6 +894,97 @@ p {
   resize: vertical;
 }
 
+.formIntro {
+  align-self: stretch;
+  background: #f8f1e7;
+  border: 1px solid #eadfcf;
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  grid-column: 1 / -1;
+  padding: 14px;
+}
+
+.formIntro h3 {
+  color: #241f1b;
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.formIntro .eyebrow {
+  align-items: center;
+  color: #8d352b;
+  display: inline-flex;
+  font-weight: 900;
+  gap: 7px;
+}
+
+.paletteEditor {
+  background: #fffaf1;
+  border: 1px solid #eadfcf;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-column: 1 / -1;
+  padding: 14px;
+}
+
+.paletteEditor > div:first-child {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.paletteEditor > div:first-child > span {
+  align-items: center;
+  color: #2f2923;
+  display: inline-flex;
+  font-weight: 900;
+  gap: 7px;
+}
+
+.quickPalette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quickPalette button {
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px #cdbda7;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  width: 28px;
+}
+
+.colorEditorRow {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(160px, 1fr) 54px auto;
+}
+
+.colorEditorRow input[type="color"] {
+  cursor: pointer;
+  min-height: 42px;
+  padding: 4px;
+}
+
+.colorEditorRow button {
+  align-items: center;
+  background: #f1d6d0;
+  border: 0;
+  border-radius: 8px;
+  color: #6d241c;
+  display: inline-flex;
+  justify-content: center;
+  min-height: 42px;
+}
+
 .check {
   gap: 8px;
 }
@@ -934,8 +1025,23 @@ p {
 }
 
 .adminList button {
+  align-items: center;
   background: #f1d6d0;
   color: #6d241c;
+  display: inline-flex;
+  gap: 7px;
+}
+
+.adminProductActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.adminProductActions button:first-child {
+  background: #241f1b;
+  color: #ffffff;
 }
 
 .orderList {
@@ -953,6 +1059,10 @@ p {
 
 .orderCard.accepted {
   border-color: #94c8ad;
+}
+
+.orderCard.delivered {
+  border-color: #c49d5b;
 }
 
 .orderCard.refused {
@@ -974,6 +1084,21 @@ p {
   margin-top: 8px;
   padding: 5px 9px;
   text-transform: uppercase;
+}
+
+.orderCard.accepted .status {
+  background: #dff0e6;
+  color: #236342;
+}
+
+.orderCard.delivered .status {
+  background: #f4e4bc;
+  color: #6d4a11;
+}
+
+.orderCard.refused .status {
+  background: #f1d6d0;
+  color: #6d241c;
 }
 
 .orderTotals,
@@ -1002,11 +1127,11 @@ p {
   padding: 9px 12px;
 }
 
-.rowActions button:nth-child(2) {
+.rowActions button:nth-child(3) {
   background: #8d352b;
 }
 
-.rowActions button:nth-child(3) {
+.rowActions button:nth-child(4) {
   background: #f1d6d0;
   color: #6d241c;
 }

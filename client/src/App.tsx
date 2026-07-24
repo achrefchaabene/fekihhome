@@ -6,6 +6,10 @@ import {
   LayoutDashboard,
   LogOut,
   PackagePlus,
+  Palette,
+  Pencil,
+  Plus,
+  Save,
   Search,
   ShieldCheck,
   SlidersHorizontal,
@@ -13,6 +17,7 @@ import {
   Sparkles,
   Tag,
   Trash2,
+  Truck,
   UserRound,
   X
 } from "lucide-react";
@@ -20,6 +25,7 @@ import {
   Category,
   Order,
   OrderStats,
+  OrderStatus,
   Product,
   User,
   api,
@@ -34,6 +40,14 @@ type CartItem = {
   colorName?: string;
   colorHex?: string;
 };
+
+type ProductColor = {
+  name: string;
+  hex: string;
+};
+
+const defaultProductColors: ProductColor[] = [{ name: "Noir", hex: "#171717" }];
+const quickPalette = ["#171717", "#f3ead7", "#c49d5b", "#9ddfca", "#8d352b", "#6c4427", "#ffffff", "#b9854f"];
 
 const sampleProducts: Product[] = [
   {
@@ -126,6 +140,8 @@ function App() {
   const [maxPrice, setMaxPrice] = useState("");
   const [selectedColors, setSelectedColors] = useState<Record<string, number>>({});
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productColors, setProductColors] = useState<ProductColor[]>(defaultProductColors);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [message, setMessage] = useState("");
 
@@ -294,10 +310,37 @@ function App() {
     }
   }
 
-  async function handleCreateProduct(event: FormEvent<HTMLFormElement>) {
+  function updateProductColor(index: number, patch: Partial<ProductColor>) {
+    setProductColors((current) =>
+      current.map((color, colorIndex) => (colorIndex === index ? { ...color, ...patch } : color))
+    );
+  }
+
+  function addProductColor(hex = "#c49d5b") {
+    setProductColors((current) => [...current, { name: `Couleur ${current.length + 1}`, hex }]);
+  }
+
+  function removeProductColor(index: number) {
+    setProductColors((current) => current.filter((_, colorIndex) => colorIndex !== index));
+  }
+
+  function startEditProduct(product: Product) {
+    setEditingProduct(product);
+    setProductColors(product.colors?.length ? product.colors : defaultProductColors);
+    setAdminTab("products");
+  }
+
+  function cancelEditProduct() {
+    setEditingProduct(null);
+    setProductColors(defaultProductColors);
+  }
+
+  async function handleSaveProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
+    form.set("colorNames", productColors.map((color) => color.name.trim()).filter(Boolean).join(","));
+    form.set("colorHexes", productColors.map((color) => color.hex).join(","));
     const purchasePrice = Number(form.get("purchasePrice"));
     const sellingPrice = Number(form.get("sellingPrice"));
     const promotionEnabled = form.get("promotionEnabled") === "on";
@@ -314,12 +357,22 @@ function App() {
     }
 
     try {
-      const created = await api.createProduct(form);
-      setProducts((current) => [created, ...current.filter((item) => !item._id.startsWith("sample"))]);
-      setMessage("Produit ajoute avec succes.");
+      const saved = editingProduct
+        ? await api.updateProduct(editingProduct._id, form)
+        : await api.createProduct(form);
+      setProducts((current) => {
+        const realProducts = current.filter((item) => !item._id.startsWith("sample"));
+        if (editingProduct) {
+          return current.map((product) => (product._id === saved._id ? saved : product));
+        }
+        return [saved, ...realProducts];
+      });
+      setMessage(editingProduct ? "Produit modifie avec succes." : "Produit ajoute avec succes.");
+      setEditingProduct(null);
+      setProductColors(defaultProductColors);
       formElement.reset();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Produit non ajoute.");
+      setMessage(error instanceof Error ? error.message : editingProduct ? "Produit non modifie." : "Produit non ajoute.");
     }
   }
 
@@ -366,12 +419,18 @@ function App() {
     }
   }
 
-  async function handleOrderStatus(id: string, status: "accepted" | "refused") {
+  async function handleOrderStatus(id: string, status: OrderStatus) {
     try {
       const updated = await api.updateOrderStatus(id, status);
       setOrders((current) => current.map((order) => (order._id === id ? updated : order)));
-      await loadAdminData(statsPeriod);
-      setMessage(status === "accepted" ? "Commande acceptee." : "Commande refusee.");
+      api.listOrderStats(statsPeriod).then(setStats).catch(() => undefined);
+      setMessage(
+        status === "accepted"
+          ? "Commande acceptee. Deuxieme etape: livraison."
+          : status === "delivered"
+            ? "Commande livree."
+            : "Commande refusee."
+      );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Statut non modifie.");
     }
@@ -381,7 +440,7 @@ function App() {
     try {
       await api.deleteOrder(id);
       setOrders((current) => current.filter((order) => order._id !== id));
-      await loadAdminData(statsPeriod);
+      api.listOrderStats(statsPeriod).then(setStats).catch(() => undefined);
       setMessage("Commande supprimee.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Commande non supprimee.");
@@ -736,9 +795,13 @@ function App() {
                     <span>Benefice {money(order.profit)}</span>
                   </div>
                   <div className="rowActions">
-                    <button onClick={() => handleOrderStatus(order._id, "accepted")} disabled={!isAdmin || order.status === "accepted"}>
+                    <button onClick={() => handleOrderStatus(order._id, "accepted")} disabled={!isAdmin || order.status !== "pending"}>
                       <Check size={17} />
                       Accepter
+                    </button>
+                    <button onClick={() => handleOrderStatus(order._id, "delivered")} disabled={!isAdmin || order.status !== "accepted"}>
+                      <Truck size={17} />
+                      Livre
                     </button>
                     <button onClick={() => handleOrderStatus(order._id, "refused")} disabled={!isAdmin || order.status === "refused"}>
                       <X size={17} />
@@ -755,34 +818,72 @@ function App() {
 
           {adminTab === "products" && (
             <>
-              <form className="productForm" onSubmit={handleCreateProduct}>
-                <input name="name" placeholder="Nom du produit" required disabled={!isAdmin} />
-                <select name="category" required disabled={!isAdmin}>
+              <form className="productForm" key={editingProduct?._id || "new-product"} onSubmit={handleSaveProduct}>
+                <div className="formIntro">
+                  <span className="eyebrow">
+                    {editingProduct ? <Pencil size={16} /> : <PackagePlus size={16} />}
+                    {editingProduct ? "Modifier produit" : "Nouveau produit"}
+                  </span>
+                  <h3>{editingProduct ? editingProduct.name : "Créer une pièce"}</h3>
+                </div>
+                <input name="name" placeholder="Nom du produit" defaultValue={editingProduct?.name || ""} required disabled={!isAdmin} />
+                <select name="category" defaultValue={editingProduct?.category || ""} required disabled={!isAdmin}>
                   <option value="">Categorie</option>
                   {categories.map((category) => (
                     <option key={category._id} value={category.name}>{category.name}</option>
                   ))}
                 </select>
-                <input name="purchasePrice" type="number" min="0" step="0.01" placeholder="Prix d'achat" required disabled={!isAdmin} />
-                <input name="sellingPrice" type="number" min="0" step="0.01" placeholder="Prix a vendre" required disabled={!isAdmin} />
+                <input name="purchasePrice" type="number" min="0" step="0.01" placeholder="Prix d'achat" defaultValue={editingProduct?.purchasePrice || ""} required disabled={!isAdmin} />
+                <input name="sellingPrice" type="number" min="0" step="0.01" placeholder="Prix a vendre" defaultValue={editingProduct?.sellingPrice || ""} required disabled={!isAdmin} />
                 <label className="check">
-                  <input name="promotionEnabled" type="checkbox" disabled={!isAdmin} />
+                  <input name="promotionEnabled" type="checkbox" defaultChecked={editingProduct?.promotion?.enabled || false} disabled={!isAdmin} />
                   Promotion
                 </label>
-                <input name="promotionPrice" type="number" min="0" step="0.01" placeholder="Prix promotionnel" disabled={!isAdmin} />
-                <input name="stock" type="number" min="0" placeholder="Stock" required disabled={!isAdmin} />
-                <input name="colorNames" placeholder="Couleurs: Noir, Beige, Rouge" disabled={!isAdmin} />
-                <input name="colorHexes" placeholder="Codes: #111111, #eadfcf, #b43a32" disabled={!isAdmin} />
-                <textarea name="description" placeholder="Description" required disabled={!isAdmin} />
-                <input name="image" type="file" accept="image/*" required disabled={!isAdmin} />
+                <input name="promotionPrice" type="number" min="0" step="0.01" placeholder="Prix promotionnel" defaultValue={editingProduct?.promotion?.price || ""} disabled={!isAdmin} />
+                <input name="stock" type="number" min="0" placeholder="Stock" defaultValue={editingProduct?.stock || ""} required disabled={!isAdmin} />
+                <input name="colorNames" type="hidden" />
+                <input name="colorHexes" type="hidden" />
+                <div className="paletteEditor">
+                  <div>
+                    <span>
+                      <Palette size={16} />
+                      Couleurs du produit
+                    </span>
+                    <div className="quickPalette">
+                      {quickPalette.map((hex) => (
+                        <button type="button" key={hex} style={{ backgroundColor: hex }} onClick={() => addProductColor(hex)} aria-label={`Ajouter ${hex}`} />
+                      ))}
+                    </div>
+                  </div>
+                  {productColors.map((color, index) => (
+                    <div className="colorEditorRow" key={`${color.hex}-${index}`}>
+                      <input value={color.name} onChange={(event) => updateProductColor(index, { name: event.target.value })} placeholder="Nom couleur" disabled={!isAdmin} />
+                      <input type="color" value={color.hex} onChange={(event) => updateProductColor(index, { hex: event.target.value })} disabled={!isAdmin} />
+                      <button type="button" onClick={() => removeProductColor(index)} disabled={!isAdmin || productColors.length === 1}>
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                  <button type="button" className="secondary" onClick={() => addProductColor()} disabled={!isAdmin}>
+                    <Plus size={16} />
+                    Ajouter couleur
+                  </button>
+                </div>
+                <textarea name="description" placeholder="Description" defaultValue={editingProduct?.description || ""} required disabled={!isAdmin} />
+                <input name="image" type="file" accept="image/*" required={!editingProduct} disabled={!isAdmin} />
                 <label className="check">
-                  <input name="featured" type="checkbox" disabled={!isAdmin} />
+                  <input name="featured" type="checkbox" defaultChecked={editingProduct?.featured || false} disabled={!isAdmin} />
                   Mettre en avant
                 </label>
                 <button className="primary" type="submit" disabled={!isAdmin}>
-                  <PackagePlus size={18} />
-                  Ajouter le produit
+                  {editingProduct ? <Save size={18} /> : <PackagePlus size={18} />}
+                  {editingProduct ? "Sauvegarder" : "Ajouter le produit"}
                 </button>
+                {editingProduct && (
+                  <button className="secondary" type="button" onClick={cancelEditProduct}>
+                    Annuler
+                  </button>
+                )}
               </form>
 
               <div className="adminList">
@@ -806,9 +907,16 @@ function App() {
                         </div>
                       )}
                     </div>
-                    <button onClick={() => handleDeleteProduct(product._id)} disabled={!isAdmin && !product._id.startsWith("sample")}>
-                      Supprimer
-                    </button>
+                    <div className="adminProductActions">
+                      <button onClick={() => startEditProduct(product)} disabled={!isAdmin || product._id.startsWith("sample")}>
+                        <Pencil size={16} />
+                        Modifier
+                      </button>
+                      <button onClick={() => handleDeleteProduct(product._id)} disabled={!isAdmin && !product._id.startsWith("sample")}>
+                        <Trash2 size={16} />
+                        Supprimer
+                      </button>
+                    </div>
                   </article>
                 ))}
               </div>

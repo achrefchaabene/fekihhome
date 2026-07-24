@@ -85,7 +85,7 @@ export async function updateOrderStatus(request, response, next) {
   try {
     const { status } = request.body;
 
-    if (!["accepted", "refused", "pending"].includes(status)) {
+    if (!["accepted", "delivered", "refused", "pending"].includes(status)) {
       return response.status(400).json({ message: "Statut commande invalide." });
     }
 
@@ -93,6 +93,10 @@ export async function updateOrderStatus(request, response, next) {
 
     if (!order) {
       return response.status(404).json({ message: "Commande introuvable." });
+    }
+
+    if (status === "delivered" && order.status !== "accepted") {
+      return response.status(400).json({ message: "La commande doit etre acceptee avant livraison." });
     }
 
     if (status === "accepted" && order.status !== "accepted") {
@@ -108,7 +112,7 @@ export async function updateOrderStatus(request, response, next) {
       }
     }
 
-    if (status !== "accepted" && order.status === "accepted") {
+    if (status !== "accepted" && status !== "delivered" && ["accepted", "delivered"].includes(order.status)) {
       for (const item of order.items) {
         await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } });
       }
@@ -139,7 +143,7 @@ export async function deleteOrder(request, response, next) {
 export async function getOrderStats(request, response, next) {
   try {
     const period = request.query.period === "year" ? "year" : "month";
-    const orders = await Order.find({ status: "accepted" }).sort({ createdAt: 1 });
+    const orders = await Order.find({ status: { $in: ["accepted", "delivered"] } }).sort({ createdAt: 1 });
     const statsMap = new Map();
 
     for (const order of orders) {

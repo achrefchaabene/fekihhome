@@ -28,7 +28,7 @@ export type Category = {
   description: string;
 };
 
-export type OrderStatus = "pending" | "accepted" | "refused";
+export type OrderStatus = "pending" | "accepted" | "delivered" | "refused";
 
 export type Order = {
   _id: string;
