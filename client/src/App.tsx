@@ -49,63 +49,6 @@ type ProductColor = {
 const defaultProductColors: ProductColor[] = [{ name: "Noir", hex: "#171717" }];
 const quickPalette = ["#171717", "#f3ead7", "#c49d5b", "#9ddfca", "#8d352b", "#6c4427", "#ffffff", "#b9854f"];
 
-const sampleProducts: Product[] = [
-  {
-    _id: "sample-1",
-    name: "Sac filet artisanal",
-    description: "Sac fait main pour sorties, courses et pieces creatives du quotidien.",
-    category: "Sacs",
-    purchasePrice: 18,
-    sellingPrice: 35,
-    promotion: { enabled: true, price: 29 },
-    colors: [
-      { name: "Menthe", hex: "#9ddfca" },
-      { name: "Noir", hex: "#171717" },
-      { name: "Creme", hex: "#f1e8d5" }
-    ],
-    price: 35,
-    stock: 12,
-    imageUrl: "/home-hero.png",
-    featured: true
-  },
-  {
-    _id: "sample-2",
-    name: "Carnet atelier",
-    description: "Carnet cousu main pour organiser idees, commandes et croquis.",
-    category: "Papeterie",
-    purchasePrice: 8,
-    sellingPrice: 18,
-    promotion: { enabled: false, price: 0 },
-    colors: [
-      { name: "Kraft", hex: "#b9854f" },
-      { name: "Ivoire", hex: "#f7f0df" }
-    ],
-    price: 18,
-    stock: 14,
-    imageUrl:
-      "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=900&q=80",
-    featured: true
-  },
-  {
-    _id: "sample-3",
-    name: "Plateau bois doux",
-    description: "Piece utile pour le bureau, le cafe ou les rituels creatifs.",
-    category: "Maison",
-    purchasePrice: 22,
-    sellingPrice: 39,
-    promotion: { enabled: false, price: 0 },
-    colors: [
-      { name: "Bois clair", hex: "#d4a15f" },
-      { name: "Noyer", hex: "#6c4427" }
-    ],
-    price: 39,
-    stock: 7,
-    imageUrl:
-      "https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?auto=format&fit=crop&w=900&q=80",
-    featured: false
-  }
-];
-
 const fallbackStats: OrderStats = {
   period: "month",
   totals: { orders: 0, revenue: 0, cost: 0, profit: 0, items: 0 },
@@ -123,7 +66,7 @@ function productPrice(product: Product) {
 }
 
 function App() {
-  const [products, setProducts] = useState<Product[]>(sampleProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState<OrderStats>(fallbackStats);
@@ -160,7 +103,7 @@ function App() {
   async function loadPublicData() {
     try {
       const [productItems, categoryItems] = await Promise.all([api.listProducts(), api.listCategories()]);
-      if (productItems.length > 0) setProducts(productItems);
+      setProducts(productItems);
       setCategories(categoryItems);
     } catch {
       setMessage("");
@@ -361,11 +304,10 @@ function App() {
         ? await api.updateProduct(editingProduct._id, form)
         : await api.createProduct(form);
       setProducts((current) => {
-        const realProducts = current.filter((item) => !item._id.startsWith("sample"));
         if (editingProduct) {
           return current.map((product) => (product._id === saved._id ? saved : product));
         }
-        return [saved, ...realProducts];
+        return [saved, ...current];
       });
       setMessage(editingProduct ? "Produit modifie avec succes." : "Produit ajoute avec succes.");
       setEditingProduct(null);
@@ -377,11 +319,6 @@ function App() {
   }
 
   async function handleDeleteProduct(id: string) {
-    if (id.startsWith("sample")) {
-      setProducts((current) => current.filter((product) => product._id !== id));
-      return;
-    }
-
     try {
       await api.deleteProduct(id);
       setProducts((current) => current.filter((product) => product._id !== id));
@@ -908,11 +845,11 @@ function App() {
                       )}
                     </div>
                     <div className="adminProductActions">
-                      <button onClick={() => startEditProduct(product)} disabled={!isAdmin || product._id.startsWith("sample")}>
+                      <button onClick={() => startEditProduct(product)} disabled={!isAdmin}>
                         <Pencil size={16} />
                         Modifier
                       </button>
-                      <button onClick={() => handleDeleteProduct(product._id)} disabled={!isAdmin && !product._id.startsWith("sample")}>
+                      <button onClick={() => handleDeleteProduct(product._id)} disabled={!isAdmin}>
                         <Trash2 size={16} />
                         Supprimer
                       </button>
