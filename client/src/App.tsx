@@ -436,26 +436,48 @@ function App() {
         <div className="heroText">
           <span className="eyebrow">
             <Sparkles size={16} />
-            Boutique officielle
+            Collection artisanale
           </span>
           <h1>Lamsa</h1>
-          <p>
+          <p dir="rtl" className="heroCopy">
             اكتشفي لمسة فريدة من الإبداع اليدوي: حقائب، إكسسوارات وقطع منزلية أنيقة
             تختارينها بسهولة وتطلبينها بسرعة دون الحاجة إلى إنشاء حساب.
           </p>
           <div className="heroStats" aria-label="Avantages boutique">
-            <span>Fait main</span>
-            <span>Commandes suivies</span>
-            <span>Pieces selectionnees</span>
+            <span>تصاميم مختارة</span>
+            <span>طلب سريع</span>
+            <span>توصيل 8 TND</span>
           </div>
           <div className="heroActions">
-            <a className="primary" href="#shop">Voir la boutique</a>
-            <a className="secondary" href="#cart">Passer au panier</a>
+            <a className="primary" href="#shop">Découvrir la collection</a>
+            <a className="secondary" href="#cart">Voir le panier</a>
           </div>
         </div>
-        <div className="heroMedia" aria-hidden="true">
+        <div className="heroMedia">
           <img src="/home-hero.png" alt="" />
+          <div className="heroMediaLabel">
+            <span>Nouvelle sélection</span>
+            <strong>Sacs & accessoires faits main</strong>
+          </div>
         </div>
+      </section>
+
+      <section className="signatureBand" aria-label="Services Lamsa">
+        <article>
+          <strong>01</strong>
+          <span>Choisir</span>
+          <p>Filtres par catégorie, prix et couleurs pour trouver rapidement la bonne pièce.</p>
+        </article>
+        <article>
+          <strong>02</strong>
+          <span>Commander</span>
+          <p>Achat invité sans création de compte, avec formulaire simple et clair.</p>
+        </article>
+        <article>
+          <strong>03</strong>
+          <span>Suivre</span>
+          <p>Commande reçue par l’admin, puis acceptée ou refusée depuis l’espace gestion.</p>
+        </article>
       </section>
 
       {message && <p className="notice">{message}</p>}
