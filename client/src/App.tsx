@@ -440,8 +440,8 @@ function App() {
           </span>
           <h1>FK Home</h1>
           <p>
-            Boutique de pieces artisanales selectionnees avec soin: des sacs, accessoires
-            et objets maison presentes clairement pour commander rapidement, sans creation de compte.
+            اكتشفي لمسة فريدة من الإبداع اليدوي: حقائب، إكسسوارات وقطع منزلية أنيقة
+            تختارينها بسهولة وتطلبينها بسرعة دون الحاجة إلى إنشاء حساب.
           </p>
           <div className="heroStats" aria-label="Avantages boutique">
             <span>Fait main</span>
