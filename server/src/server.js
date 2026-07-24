@@ -11,6 +11,17 @@ function normalizeOrigin(origin) {
   return origin?.trim().replace(/\/+$/, "");
 }
 
+function isAllowedOrigin(origin) {
+  const normalized = normalizeOrigin(origin);
+
+  if (!normalized) return true;
+  if (allowedOrigins.includes(normalized)) return true;
+  if (normalized === "http://localhost:5173") return true;
+  if (normalized.endsWith(".vercel.app")) return true;
+
+  return false;
+}
+
 const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
   .split(",")
   .map(normalizeOrigin)
@@ -19,7 +30,7 @@ const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(normalizeOrigin(origin))) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
 
